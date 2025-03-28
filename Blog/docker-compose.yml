@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  dbservice:
+    image: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root  # Removed extra space around "root"
+    volumes:
+      - ./data:/var/lib/mysql    # Persist database data to a local directory
+    ports:
+      - "3306:3306"              # Expose MySQL's default port
+
+  appservice:
+    build: ./boot                # Assuming you have a 'boot' directory with a Dockerfile for your Spring Boot app
+    depends_on:
+      - dbservice                # Ensure dbservice is started before appservice
+    environment:
+      - spring.datasource.url=jdbc:mysql://dbservice:3306/blog_app?createDatabaseIfNotExist=true
+      - spring.datasource.username=root
+      - spring.datasource.password=root
+    ports:
+      - "8080:8080"
